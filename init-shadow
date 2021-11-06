@@ -1,0 +1,8 @@
+npm install
+cp ./#bson-clj-files/bson.js ./node_modules/bson/lib/bson.js
+cp ./#bson-clj-files/serializer.js ./node_modules/bson/lib/parser/serializer.js
+cp ./#bson-clj-files/deserializer.js ./node_modules/bson/lib/parser/deserializer.js
+shadow-cljs stop
+shadow-cljs start
+rm pom.xml
+npx shadow-cljs pom

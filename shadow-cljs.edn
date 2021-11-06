@@ -1,0 +1,28 @@
+{:source-paths ["src"]
+ :dependencies [[cmql/cmql-core "0.1.0-SNAPSHOT"]
+                [cmql/cmql-js "0.1.0-SNAPSHOT"]]
+ :builds {:library {:target :node-library
+                     :output-to "../queries/index.js"
+                     :compiler-options {:infer-externs true}
+                     :exports {:list_databases cmql-app-cljs.core/list-databases
+                               :insert_data cmql-app-cljs.core/insert-data
+                               :update_data cmql-app-cljs.core/update-data
+                               :delete_data cmql-app-cljs.core/delete-data
+                               :aggregate_data cmql-app-cljs.core/aggregate-data}}
+          :app {:target :node-script
+                :output-to "target/main.js"
+                :source-map true
+                :main cmql-app-cljs.core/main
+                :compiler-options {:infer-externs true}
+                
+                :devtools {:repl-init-ns cmql-app-cljs.core
+                           :repl-pprint true}
+                }}}
+                
+
+#_{:node-library {:target :node-library
+                  :output-to "dist/index.js"
+                  :exports {:q1 cmql-app-cljs.core/q1}}
+                 }
+
+                

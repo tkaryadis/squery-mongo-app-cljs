@@ -1,0 +1,6 @@
+rm -rf ../.shadow-cljs
+rm -rf ../queries
+java -jar usecljs-0.1.0-SNAPSHOT-standalone.jar 0
+shadow-cljs compile library
+java -jar usecljs-0.1.0-SNAPSHOT-standalone.jar 1
+cp -R ./.shadow-cljs ../.shadow-cljs
