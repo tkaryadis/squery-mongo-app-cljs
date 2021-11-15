@@ -17,6 +17,15 @@
                 
                 :devtools {:repl-init-ns cmql-app-cljs.core
                            :repl-pprint true}
+                }
+          :transactions {:target :node-script
+                :output-to "target/main.js"
+                :source-map true
+                :main cmql-app-cljs.transactions.transactions/main
+                :compiler-options {:infer-externs true}
+
+                :devtools {:repl-init-ns cmql-app-cljs.transactions.transactions
+                           :repl-pprint true}
                 }}}
                 
 

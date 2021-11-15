@@ -7,7 +7,7 @@
             [cljs.core.async :refer [go go-loop <! chan close! take!]]
             [cljs.core.async.interop :refer-macros [<p!]]
             [cmql-js.cmql-arguments :refer-macros [p f qf] :refer [o d]]
-            [cmql-js.util :refer [run-query] :refer-macros [golet cmql]]
+            [cmql-js.util :refer [js-async] :refer-macros [golet cmql]]
             [cmql-js.driver.cursor :refer-macros [c-take-all! c-print-all!]]
             [cmql-js.driver.settings :refer [update-defaults defaults]]
             [cmql-js.driver.client :refer [create-mongo-client]]
@@ -21,7 +21,7 @@
 (defn clear-data []
   (golet [client (<p! (.connect (defaults :client)))
           coll (.collection (.db client "sample_airbnb") "listingsAndReviews")]
-    (try (.drop coll) (catch :default e e))))
+    (try (<p! (.drop coll)) (catch :default e e))))
 
 ;; i add (o)  o=> uses the default encode
 (defn list-databases []

@@ -12,7 +12,7 @@
             [cmql-js.driver.settings :refer [update-defaults defaults]]
             [cmql-js.driver.client :refer [create-mongo-client]]
             [cmql-js.commands :refer-macros [q fq insert insert! delete! dq]]
-            [cmql-js.util :refer [run-query] :refer-macros [golet cmql]]
+            [cmql-js.util :refer [js-async] :refer-macros [golet cmql]]
             [cljs-bean.core :refer [bean ->clj ->js]]
             [cljs.reader :refer [read-string]]
             cljs.pprint
@@ -41,24 +41,24 @@
   (quick/clear-data))
 
 (defn list-databases
-  ([cb] (run-query quick/list-databases cb))
-  ([] (run-query quick/list-databases)))
+  ([cb] (js-async quick/list-databases cb))
+  ([] (js-async quick/list-databases)))
 
 (defn insert-data
-  ([cb] (run-query quick/insert-data cb))
-  ([] (run-query quick/insert-data)))
+  ([cb] (js-async quick/insert-data cb))
+  ([] (js-async quick/insert-data)))
 
 (defn update-data
-  ([cb] (run-query quick/update-data cb))
-  ([] (run-query quick/update-data)))
+  ([cb] (js-async quick/update-data cb))
+  ([] (js-async quick/update-data)))
 
 (defn aggregate-data
-  ([cb] (run-query quick/aggregate-data cb))
-  ([] (run-query quick/aggregate-data)))
+  ([cb] (js-async quick/aggregate-data cb))
+  ([] (js-async quick/aggregate-data)))
 
 (defn delete-data
-  ([cb] (run-query quick/delete-data cb))
-  ([] (run-query quick/delete-data)))
+  ([cb] (js-async quick/delete-data cb))
+  ([] (js-async quick/delete-data)))
 
 (go (clear-data)
     (<p! (list-databases))
