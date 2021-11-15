@@ -55,31 +55,3 @@
                                   (<p! (.insertOne coll2 #js {:xyz 1000} #js {:session session})))))
                toptions))]
   "done")
-
-
-#_(golet [client (<p! (.connect (defaults :client)))
-        coll1 (-> (.db client "mydb1")
-                  (.collection "foo"))
-        coll2 (-> (.db client "mydb2")
-                  (.collection "bar"))
-        _ (try (.drop coll1) (catch :default e e))
-        _ (try (.drop coll2) (catch :default e e))
-        _ (<p! (.insertOne coll1
-                           #js { "abc" 0 }
-                           #js { "writeConcern"  { "w" "majority"} }))
-        _ (<p! (.insertOne coll2
-                           #js { "xyz" 0 }
-                           #js { "writeConcern"  { "w" "majority"} }))
-        session (.startSession (defaults :client))
-
-        toptions #js {"readPreference" "primary",
-                      "readConcern"    {"level" "local"},
-                      "writeConcern"   {"w" "majority"}
-                      }
-
-        _ (<p! (.withTransaction
-                 session
-                 (fn []
-                   (js/Promise. (fn [resolve _] (go (resolve (<p! (.insertOne coll1 #js {:abc 2} #js {:session session})))))))
-                 toptions))]
-  "done")
