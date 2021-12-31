@@ -1,14 +1,18 @@
-(ns cmql-app-cljs.core
+(ns cmql-app-cljs.test
   (:use cmql-core.operators.operators
+        cmql-core.operators.qoperators
+        cmql-core.operators.uoperators
         cmql-core.operators.stages)
   (:require cmql-core.operators.operators
+            cmql-core.operators.qoperators
+            cmql-core.operators.uoperators
             cmql-core.operators.options
             cmql-core.operators.stages
             [cljs.core.async :refer [go go-loop <! chan close! take!]]
             [cljs.core.async.interop :refer-macros [<p!]]
-            [cmql-js.cmql-arguments :refer-macros [p f qf] :refer [o d]]
+            [cmql-js.cmql-arguments :refer-macros [p f qf u] :refer [o d]]
             [cmql-js.driver.cursor :refer [c-take-all c-print-all]]
-            [cmql-js.driver.cursor :refer-macros [c-take-all!]]
+            [cmql-js.driver.cursor :refer-macros [c-take-all! c-print-all!]]
             [cmql-js.driver.settings :refer [update-defaults defaults]]
             [cmql-js.driver.client :refer [create-mongo-client]]
             [cmql-js.commands :refer-macros [q fq insert insert! delete! dq]]
@@ -31,6 +35,27 @@
 (def mongodb (js/require "mongodb"))
 
 (def MongoClient (.-MongoClient mongodb))
+
+;;test pipeline update not supported in nodejs driver
+(go (try
+      (let [client (<p! (.connect (defaults :client)))
+            coll (.collection (.db client "testdb") "testcoll")
+            _ (try (<p! (.drop coll)) (catch :default e e))
+            _ (insert! :testdb.testcoll {:a 1})
+            _ (prn "before update")
+            _ (c-print-all! (q :testdb.testcoll))
+            _ (<p! (.updateOne coll
+                               #js {}
+                               (u (set_ :a 10))))
+            _ (prn "after update")
+            _ (c-print-all! (q :testdb.testcoll))
+            _ (.exit js/process)
+            ]
+        "done")
+      (catch :default e (prn (.toString e)))))
+
+
+
 
 ;;exec query is like this, to allow cb call or promise return
 #_(defn exec-query
@@ -60,7 +85,7 @@
   ([cb] (js-async quick/delete-data cb))
   ([] (js-async quick/delete-data)))
 
-(go (clear-data)
+#_(go (clear-data)
     (<p! (list-databases))
     (<p! (insert-data))
     (<p! (update-data))        ;;requires the insert

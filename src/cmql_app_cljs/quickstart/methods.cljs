@@ -1,7 +1,11 @@
 (ns cmql-app-cljs.quickstart.methods
   (:use cmql-core.operators.operators
+        cmql-core.operators.qoperators
+        cmql-core.operators.uoperators
         cmql-core.operators.stages)
   (:require cmql-core.operators.operators
+            cmql-core.operators.qoperators
+            cmql-core.operators.uoperators
             cmql-core.operators.options
             cmql-core.operators.stages
             [cljs.core.async :refer [go go-loop <! chan close! take!]]

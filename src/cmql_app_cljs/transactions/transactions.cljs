@@ -1,7 +1,11 @@
 (ns cmql-app-cljs.transactions.transactions
   (:use cmql-core.operators.operators
+        cmql-core.operators.qoperators
+        cmql-core.operators.uoperators
         cmql-core.operators.stages)
   (:require cmql-core.operators.operators
+            cmql-core.operators.qoperators
+            cmql-core.operators.uoperators
             cmql-core.operators.options
             cmql-core.operators.stages
             [cljs.core.async :refer [go go-loop <! chan close! take!]]
@@ -35,12 +39,18 @@
                   (.collection "bar"))
         _ (try (<p! (.drop coll1))  (catch :default e e))
         _ (try (<p! (.drop coll2))  (catch :default e e))
+
+        ;;------i can create collections inside transactions also >= 4.4
+        ;;but i dont do it if no reason to so here i create them before
         _ (<p! (.insertOne coll1
                            #js { "abc" 0 }
                            #js { "writeConcern"  { "w" "majority"} }))
         _ (<p! (.insertOne coll2
                            #js { "xyz" 0 }
                            #js { "writeConcern"  { "w" "majority"} }))
+
+        ;;--------------Transaction-----------------------------------
+
         session (.startSession (defaults :client))
 
         toptions #js {"readPreference" "primary",
