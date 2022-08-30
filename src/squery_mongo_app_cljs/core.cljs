@@ -1,26 +1,26 @@
-(ns cmql-app-cljs.test
-  (:use cmql-core.operators.operators
-        cmql-core.operators.qoperators
-        cmql-core.operators.uoperators
-        cmql-core.operators.stages)
-  (:require cmql-core.operators.operators
-            cmql-core.operators.qoperators
-            cmql-core.operators.uoperators
-            cmql-core.operators.options
-            cmql-core.operators.stages
+(ns squery-mongo-app-cljs.core
+  (:use squery-mongo-core.operators.operators
+        squery-mongo-core.operators.qoperators
+        squery-mongo-core.operators.uoperators
+        squery-mongo-core.operators.stages)
+  (:require squery-mongo-core.operators.operators
+            squery-mongo-core.operators.qoperators
+            squery-mongo-core.operators.uoperators
+            squery-mongo-core.operators.options
+            squery-mongo-core.operators.stages
             [cljs.core.async :refer [go go-loop <! chan close! take!]]
             [cljs.core.async.interop :refer-macros [<p!]]
-            [cmql-js.cmql-arguments :refer-macros [p f qf u] :refer [o d]]
-            [cmql-js.driver.cursor :refer [c-take-all c-print-all]]
-            [cmql-js.driver.cursor :refer-macros [c-take-all! c-print-all!]]
-            [cmql-js.driver.settings :refer [update-defaults defaults]]
-            [cmql-js.driver.client :refer [create-mongo-client]]
-            [cmql-js.commands :refer-macros [q fq insert insert! delete! dq]]
-            [cmql-js.util :refer [js-async] :refer-macros [golet cmql]]
+            [squery-mongo.squery-arguments :refer-macros [p f qf u] :refer [o d]]
+            [squery-mongo.driver.cursor :refer [c-take-all c-print-all]]
+            [squery-mongo.driver.cursor :refer-macros [c-take-all! c-print-all!]]
+            [squery-mongo.driver.settings :refer [update-defaults defaults]]
+            [squery-mongo.driver.client :refer [create-mongo-client]]
+            [squery-mongo.commands :refer-macros [q fq insert insert! delete! dq]]
+            [squery-mongo.util :refer [js-async] :refer-macros [golet squery]]
             [cljs-bean.core :refer [bean ->clj ->js]]
             [cljs.reader :refer [read-string]]
             cljs.pprint
-            [cmql-app-cljs.quickstart.methods :as quick]))
+            [squery-mongo-app-cljs.quickstart.methods :as quick]))
 
 (defn main [])
 
@@ -46,7 +46,7 @@
             _ (c-print-all! (q :testdb.testcoll))
             _ (<p! (.updateOne coll
                                #js {}
-                               (u (set_ :a 10))))
+                               (u (set!- :a 10))))
             _ (prn "after update")
             _ (c-print-all! (q :testdb.testcoll))
             _ (.exit js/process)

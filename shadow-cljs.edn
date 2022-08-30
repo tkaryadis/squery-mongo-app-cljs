@@ -1,37 +1,37 @@
 {:source-paths ["src"]
- :dependencies [[org.cmql/cmql-core "0.2.0-SNAPSHOT"]
-                [org.cmql/cmql-js "0.2.0-SNAPSHOT"]]
+ :dependencies [[org.squery/squery-mongo-core "0.2.0-SNAPSHOT"]
+                [org.squery/squery-mongo-js "0.2.0-SNAPSHOT"]]
  :builds {:library {:target :node-library
                      :output-to "../queries/index.js"
                      :compiler-options {:infer-externs true}
-                     :exports {:list_databases cmql-app-cljs.core/list-databases
-                               :insert_data cmql-app-cljs.core/insert-data
-                               :update_data cmql-app-cljs.core/update-data
-                               :delete_data cmql-app-cljs.core/delete-data
-                               :aggregate_data cmql-app-cljs.core/aggregate-data}}
+                     :exports {:list_databases squery-mongo-app-cljs.core/list-databases
+                               :insert_data squery-mongo-app-cljs.core/insert-data
+                               :update_data squery-mongo-app-cljs.core/update-data
+                               :delete_data squery-mongo-app-cljs.core/delete-data
+                               :aggregate_data squery-mongo-app-cljs.core/aggregate-data}}
           :app {:target :node-script
                 :output-to "target/main.js"
                 :source-map true
-                :main cmql-app-cljs.core/main
+                :main squery-mongo-app-cljs.core/main
                 :compiler-options {:infer-externs true}
                 
-                :devtools {:repl-init-ns cmql-app-cljs.core
+                :devtools {:repl-init-ns squery-mongo-app-cljs.core
                            :repl-pprint true}
                 }
           :transactions {:target :node-script
                 :output-to "target/main.js"
                 :source-map true
-                :main cmql-app-cljs.transactions.transactions/main
+                :main squery-mongo-app-cljs.transactions.transactions/main
                 :compiler-options {:infer-externs true}
 
-                :devtools {:repl-init-ns cmql-app-cljs.transactions.transactions
+                :devtools {:repl-init-ns squery-mongo-app-cljs.transactions.transactions
                            :repl-pprint true}
                 }}}
                 
 
 #_{:node-library {:target :node-library
                   :output-to "dist/index.js"
-                  :exports {:q1 cmql-app-cljs.core/q1}}
+                  :exports {:q1 squery-mongo-app-cljs.core/q1}}
                  }
 
                 

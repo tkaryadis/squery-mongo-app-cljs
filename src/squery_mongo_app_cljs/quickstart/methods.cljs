@@ -1,21 +1,21 @@
-(ns cmql-app-cljs.quickstart.methods
-  (:use cmql-core.operators.operators
-        cmql-core.operators.qoperators
-        cmql-core.operators.uoperators
-        cmql-core.operators.stages)
-  (:require cmql-core.operators.operators
-            cmql-core.operators.qoperators
-            cmql-core.operators.uoperators
-            cmql-core.operators.options
-            cmql-core.operators.stages
+(ns squery-mongo-app-cljs.quickstart.methods
+  (:use squery-mongo-core.operators.operators
+        squery-mongo-core.operators.qoperators
+        squery-mongo-core.operators.uoperators
+        squery-mongo-core.operators.stages)
+  (:require squery-mongo-core.operators.operators
+            squery-mongo-core.operators.qoperators
+            squery-mongo-core.operators.uoperators
+            squery-mongo-core.operators.options
+            squery-mongo-core.operators.stages
             [cljs.core.async :refer [go go-loop <! chan close! take!]]
             [cljs.core.async.interop :refer-macros [<p!]]
-            [cmql-js.cmql-arguments :refer-macros [p f qf] :refer [o d]]
-            [cmql-js.util :refer [js-async] :refer-macros [golet cmql]]
-            [cmql-js.driver.cursor :refer-macros [c-take-all! c-print-all!]]
-            [cmql-js.driver.settings :refer [update-defaults defaults]]
-            [cmql-js.driver.client :refer [create-mongo-client]]
-            [cmql-js.commands :refer-macros [q fq insert insert! update- uq delete! dq]]
+            [squery-mongo.squery-arguments :refer-macros [p f qf] :refer [o d]]
+            [squery-mongo.util :refer [js-async] :refer-macros [golet squery]]
+            [squery-mongo.driver.cursor :refer-macros [c-take-all! c-print-all!]]
+            [squery-mongo.driver.settings :refer [update-defaults defaults]]
+            [squery-mongo.driver.client :refer [create-mongo-client]]
+            [squery-mongo.commands :refer-macros [q fq insert insert! update- uq delete! dq]]
             [cljs-bean.core :refer [bean ->clj ->js]]
             [cljs.reader :refer [read-string]]
             cljs.pprint))
@@ -73,9 +73,9 @@
               coll (.collection (.db client "sample_airbnb") "listingsAndReviews")
               ;;findOne({ name: "Infinite Views" }
               nameOfListing "Infinite Views"
-              ;;cmql way, find like command call looks like aggregation
+              ;;squery way, find like command call looks like aggregation
               _ (c-print-all! (fq :sample_airbnb.listingsAndReviews
-                                 (=- :name nameOfListing)   ;;=- is the query operator
+                                 (=? :name nameOfListing)   ;;=- is the query operator
                                  (limit 1)))
               _ (c-print-all! (fq :sample_airbnb.listingsAndReviews
                                  (= :name nameOfListing)    ;;= is the aggregate operator, so $expr is used internally
@@ -92,20 +92,20 @@
               minimumNumberOfBathrooms 2
               maximumNumberOfResults 5
 
-              ;;cmql way find like aggregate, more intuative (will use the default decode, unless i say otherwise)
+              ;;squery way find like aggregate, more intuative (will use the default decode, unless i say otherwise)
               _ (c-print-all! (fq :sample_airbnb.listingsAndReviews
-                                 (>=- :bedrooms minimumNumberOfBedrooms)
-                                 (>=- :bathrooms minimumNumberOfBathrooms)
+                                 (>=? :bedrooms minimumNumberOfBedrooms)
+                                 (>=? :bathrooms minimumNumberOfBathrooms)
                                  (sort :!last_review)
                                  (limit maximumNumberOfResults)))
               ;; instead of c-print-all! c-take-all!(get vector) or .toArray(get array)
 
               ;;nodejs tutorial has a more fancy print, here just print the docs
               _ (println "----------Find-results--------------")
-              ;;driver way interop + cmql arguments (f is for filter allowing us to use cmql like filters)
+              ;;driver way interop + squery arguments (f is for filter allowing us to use squery like filters)
               _ (c-print-all! (-> (.find coll
-                                         (f (>=- :bedrooms minimumNumberOfBedrooms)
-                                            (>=- :bathrooms minimumNumberOfBathrooms))
+                                         (f (>=? :bedrooms minimumNumberOfBedrooms)
+                                            (>=? :bathrooms minimumNumberOfBathrooms))
                                          ;(o)  without this we will get results in #js objects not clojure maps
                                          )
                                  (.sort (d {:last_review -1}))           ;;d will do clj->js, same as  #js {:last_review -1}
@@ -125,42 +125,42 @@
               ;;UPDATE
 
               _ (println "Before the update")
-              _ (c-print-all! (fq :sample_airbnb.listingsAndReviews (=- :name nameOfListing)))
-              ;;cmql-way (update- works only with pipeline update, for not-pipeline update use interop like bellow)
+              _ (c-print-all! (fq :sample_airbnb.listingsAndReviews (=? :name nameOfListing)))
+              ;;squery-way (update- works only with pipeline update, for not-pipeline update use interop like bellow)
               _ (c-print-all! (update- :sample_airbnb.listingsAndReviews
-                                       (uq (=- :name nameOfListing)
+                                       (uq (=? :name nameOfListing)
                                            (replace-root (merge :ROOT. updatedListing)))))
               _ (println "After the update(beds 8)")
-              _ (c-print-all! (fq :sample_airbnb.listingsAndReviews (=- :name nameOfListing)))
+              _ (c-print-all! (fq :sample_airbnb.listingsAndReviews (=? :name nameOfListing)))
               ;; Drive interop way (2 ways one with pipeline-update and one with update operators)
               updatedListing { :bedrooms 6, :beds 10 }
               _ (.updateOne coll
-                            (f (=- :name nameOfListing))    ;;or  (d {:name nameOfListing})
+                            (f (=? :name nameOfListing))    ;;or  (d {:name nameOfListing})
                             (d {"$set" updatedListing}))
               _ (println "After the update2(beds 10)")
-              _ (c-print-all! (fq :sample_airbnb.listingsAndReviews (=- :name nameOfListing)))
+              _ (c-print-all! (fq :sample_airbnb.listingsAndReviews (=? :name nameOfListing)))
 
               updatedListing {:name "Cozy Cottage", :bedrooms 2, :bathrooms 1}
               _ (println "Before the upsert(see no results)")
-              _ (c-print-all! (fq :sample_airbnb.listingsAndReviews (=- :name "Cozy Cottage")))
-              ;;cmql-way (update- works only with pipeline update, for not-pipeline update use interop like bellow)
+              _ (c-print-all! (fq :sample_airbnb.listingsAndReviews (=? :name "Cozy Cottage")))
+              ;;squery-way (update- works only with pipeline update, for not-pipeline update use interop like bellow)
               ;; instead of :sample_airbnb.listingsAndReviews the coll object could be used
               _ (update- :sample_airbnb.listingsAndReviews
                          (uq {:name "Cozy Cottage"} ;;needs a document not a comparison operator, to be the root
                              (replace-root (merge :ROOT. updatedListing))
                              {:upsert true}))
               _ (println "After the upsert(cozy cottage is added)")
-              _ (c-print-all! (fq :sample_airbnb.listingsAndReviews (=- :name "Cozy Cottage")))
+              _ (c-print-all! (fq :sample_airbnb.listingsAndReviews (=? :name "Cozy Cottage")))
               ;;next upsert will be with interop
               updatedListing {:beds 2}
               _ (println "Before second upsert-update(because exists)(see no beds)")
-              _ (c-print-all! (fq :sample_airbnb.listingsAndReviews (=- :name "Cozy Cottage")))
+              _ (c-print-all! (fq :sample_airbnb.listingsAndReviews (=? :name "Cozy Cottage")))
               ;;interop
               _ (.updateOne coll
                             (d {:name "Cozy Cottage"})   ;;or  (d {:name nameOfListing})
                             (d {"$set" updatedListing}))
               _ (println "After the upsert-update(because exists)(after beds=2 is added)")
-              _ (c-print-all! (fq :sample_airbnb.listingsAndReviews (=- :name "Cozy Cottage")))
+              _ (c-print-all! (fq :sample_airbnb.listingsAndReviews (=? :name "Cozy Cottage")))
               ]
 
           "done")
@@ -218,17 +218,17 @@
               ;;DeleteOne
 
               _ (println "Before the delete(you need to do mongorestore after this to retry it)")
-              _ (c-print-all! (fq :sample_airbnb.listingsAndReviews (=- :name nameOfListing)))
-              ;;cmql-way (delete- , each dq is like one delete similar to command delete)
-              ;; looks like pipeline for simplicity, inside cMQL makes it a valid delete command (for example limit stage is used)
+              _ (c-print-all! (fq :sample_airbnb.listingsAndReviews (=? :name nameOfListing)))
+              ;;squery-way (delete- , each dq is like one delete similar to command delete)
+              ;; looks like pipeline for simplicity, inside squery makes it a valid delete command (for example limit stage is used)
               ;; one delete can have multiple dq, its like batch delete, like the command
               _ (c-print-all! (delete! :sample_airbnb.listingsAndReviews
                                        (dq (= :name nameOfListing)
                                            (limit 1))))                 ;; for delete many dont put limit
               _ (println "After the delete(expected empty results)")
-              _ (c-print-all! (fq :sample_airbnb.listingsAndReviews (=- :name nameOfListing)))
+              _ (c-print-all! (fq :sample_airbnb.listingsAndReviews (=? :name nameOfListing)))
               _ (.exit js/process)
-              ;;Delete with driver interop is the same as update with interop, using cmql arguments like f,d etc
+              ;;Delete with driver interop is the same as update with interop, using squery arguments like f,d etc
               ]
           "done")
         (catch :default e (.toString e)))))

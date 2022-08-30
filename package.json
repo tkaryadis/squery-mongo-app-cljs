@@ -1,5 +1,5 @@
 {
-  "name": "cmql-app-cljs",
+  "name": "squery-mongo-app-cljs",
   "version": "0.1.0",
   "description": "",
   "main": "index.js",
